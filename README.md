@@ -16,5 +16,9 @@ Then launch the server, it starts by default on port 8080:
 ## Modified http-kit
 
 A fork of [http-kit](https://github.com/http-kit/http-kit) is provided in the `checkouts` directory which does not send the `Server: http-kit` header.
-If you want to install it, just run `lein install` inside it.
+If you want to install it, run `git submodule update --init` and `lein install` inside the `checkouts` directory.
 Otherwise just ignore it if the header does not bother you.
+
+## Notes
+
+* Image transparency is lost, and replaced with a black color, because of the conversion to JPG
