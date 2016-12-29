@@ -23,7 +23,7 @@ Otherwise just ignore it if the header does not bother you.
 ## Notes
 
 * Image transparency is lost, and replaced with a black color, because of the conversion to JPG
-* Multiple requests to the same image URL (if it is not downloaded yet) might result in multiple downloads if the requests are made in quick succession because of the async approach (See [#2](https://github.com/Gira-X/clj-basic-image-cache-server/issues/2))
+* __Bug__ Multiple requests to the same image URL (if it is not downloaded yet) might result in multiple downloads if the requests are made in quick succession because of the async approach (See [#2](https://github.com/Gira-X/clj-basic-image-cache-server/issues/2))
 
 ## Unsplash.it scraper
 
