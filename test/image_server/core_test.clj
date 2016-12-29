@@ -12,7 +12,6 @@
 (def test-image "http://designed-x.com/img/github.png")
 ; https://upload.wikimedia.org/wikipedia/commons/e/e3/Large_and_small_magellanic_cloud_from_new_zealand.jpg
 (def large-test-image "http://designed-x.com/large.jpg")
-;(def large-test-image "http://designed-x.com/img/github.png")
 
 (defn file-seq-string
   "Returns only files in the passed directory"
