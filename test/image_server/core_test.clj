@@ -23,8 +23,10 @@
     (let [random-pics (map #(.getName %) (file-seq-string "resources/random/"))]
       (is (= random-picture-amount (count random-pics)))
       (is (every? #(s/ends-with? % ".jpg") random-pics))
-      (is (= (apply hash-set (map #(str random-picture-dir %) random-pics))
-             (apply hash-set (repeatedly 2000 get-random-pic)))))))
+      (is (= random-picture-amount
+             (count (apply hash-set
+                           (repeatedly (* 10 random-picture-amount)
+                                       get-random-pic))))))))
 
 (defn format-localhost [url]
   (str "http://localhost:" port "/" url))
@@ -61,6 +63,14 @@
     (is (f url))
     (Integer. content-length)))
 
+(defn test-random-image []
+  (let [{:keys [status]
+         {:keys [content-length]} :headers
+         {:keys [url]} :opts}
+        (localhost "random")]
+    (is (= status 200))
+    (is (= (format-localhost "random") url))))
+
 (defn is-local-url? [url]
   (= (format-localhost (str "get/" (base64/encode test-image))) url))
 
@@ -90,6 +100,7 @@
           (localhost (str "get/" (base64/encode "www.notvalid")))]
       (is (= status 400))
       (is (= body "Decoded URL is not valid")))
+    (doall (repeatedly 5 test-random-image))
     ; second call returns the cached image which should be smaller than the
     ; original image
     (is (> (get-content-length test-image #(= test-image %) {:delay 0})
