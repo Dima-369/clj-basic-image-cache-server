@@ -72,7 +72,7 @@
     (is (= url image))))
 
 (defn only-in-log? [s log]
-  (= 1 (count (re-seq (re-pattern s) log))))
+  (= 1 (count (re-seq (re-pattern (str "Downloaded \"" s "\"")) log))))
 
 (deftest server
   (delete-files [log-file
@@ -102,6 +102,4 @@
     (Thread/sleep 1000)
     (httpkitserver))
   (let [log (slurp log-file)]
-    (is (not-empty log))
-    (is (only-in-log? (str "Downloaded \"" test-image "\"") log))
-    (is (only-in-log? (str "Downloaded \"" large-test-image "\"") log))))
+    (is (every? #(only-in-log? % log) [test-image large-test-image]))))
