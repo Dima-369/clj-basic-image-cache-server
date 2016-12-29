@@ -1,6 +1,6 @@
 (ns image-server.randomimages
-  (:require [image-server.utils :refer :all]
-            [clojure.java.io :refer [resource]]
+  (:require [clojure.java.io :refer [resource]]
+            [image-server.utils :refer :all]
             [org.httpkit.server :refer [with-channel]])
   (:gen-class))
 

@@ -1,13 +1,13 @@
 (ns image-server.core-test
-  (:require [clojure.test :refer [deftest testing is]]
-            [clojure.string :as s]
+  (:require [base64-clj.core :as base64]
             [clojure.java.io :refer [delete-file]]
-            [base64-clj.core :as base64]
+            [clojure.string :as s]
+            [clojure.test :refer [deftest is testing]]
             [digest :refer [sha-256]]
-            [org.httpkit.client :as http]
             [image-server.core :refer :all]
+            [image-server.randomimages :refer :all]
             [image-server.utils :refer :all]
-            [image-server.randomimages :refer :all]))
+            [org.httpkit.client :as http]))
 
 (def test-image "http://designed-x.com/img/github.png")
 ; https://upload.wikimedia.org/wikipedia/commons/e/e3/Large_and_small_magellanic_cloud_from_new_zealand.jpg
