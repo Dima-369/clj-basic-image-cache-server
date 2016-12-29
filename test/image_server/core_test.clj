@@ -69,6 +69,7 @@
          {:keys [url]} :opts}
         (localhost "random")]
     (is (= status 200))
+    (is (> (Integer. content-length) 1000))
     (is (= (format-localhost "random") url))))
 
 (defn is-local-url? [url]
@@ -100,7 +101,7 @@
           (localhost (str "get/" (base64/encode "www.notvalid")))]
       (is (= status 400))
       (is (= body "Decoded URL is not valid")))
-    (doall (repeatedly 5 test-random-image))
+    (dorun (repeatedly 5 test-random-image))
     ; second call returns the cached image which should be smaller than the
     ; original image
     (is (> (get-content-length test-image #(= test-image %) {:delay 0})
