@@ -71,8 +71,8 @@
     (is (= status 200))
     (is (= url image))))
 
-(defn only-download-in-log? [s log]
-  (= 1 (count (re-seq (re-pattern (str "Downloaded \"" s "\"")) log))))
+(defn count-downloads-in-log [s log]
+  (count (re-seq (re-pattern (str "Downloaded \"" s "\"")) log)))
 
 (deftest server
   (delete-files [log-file
@@ -102,4 +102,4 @@
     (Thread/sleep 1000)
     (httpkitserver))
   (let [log (slurp log-file)]
-    (is (only-download-in-log? large-test-image log))))
+    (is (= 1 (count-downloads-in-log large-test-image log)))))
