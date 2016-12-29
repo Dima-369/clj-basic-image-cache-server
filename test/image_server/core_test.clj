@@ -51,6 +51,8 @@
     (is (f url))))
 
 (deftest server
+  (let [replace (comp str biginteger)]
+    (println (replace 5)))
   (swallow-exceptions (delete-file log-file))
   (swallow-exceptions (delete-file (str cache-directory test-image-sha)))
   (let [httpkitserver (-main)]
