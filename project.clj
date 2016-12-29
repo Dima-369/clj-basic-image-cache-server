@@ -14,6 +14,9 @@
                  [com.taoensso/timbre "4.8.0"]
                  [commons-validator "1.5.1"]]
   :main ^:skip-aot image-server.core
-  :profiles {:uberjar {:aot :all}
+  ; note the :aot, we do not want to include the scraper
+  :profiles {:uberjar {:aot [image-server.core
+                             image-server.utils
+                             image-server.randomimages]}
              :dev {:plugins [[jonase/eastwood "0.2.3"]
                              [lein-kibit "0.1.3"]]}})

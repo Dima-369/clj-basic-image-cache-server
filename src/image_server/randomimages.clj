@@ -4,9 +4,10 @@
   (:gen-class))
 
 (def random-picture-dir "resources/random/")
+(def random-picture-amount 25)
 
 (defn get-random-pic []
-  (str random-picture-dir (inc (rand-int 48)) ".jpg"))
+  (str random-picture-dir (inc (rand-int random-picture-amount)) ".jpg"))
 
 (defn get-random [req]
   (with-channel req channel
