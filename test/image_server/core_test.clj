@@ -71,6 +71,9 @@
     (is (= status 200))
     (is (= url image))))
 
+(defn only-in-log? [s log]
+  (= 1 (count (re-seq (re-pattern s) log))))
+
 (deftest server
   (delete-files [log-file
                  (str cache-directory (sha-256 test-image))
@@ -98,4 +101,7 @@
     ; usually faster
     (Thread/sleep 1000)
     (httpkitserver))
-  (is (not-empty (slurp log-file))))
+  (let [log (slurp log-file)]
+    (is (not-empty log))
+    (is (only-in-log? (str "Downloaded \"" test-image "\"") log))
+    (is (only-in-log? (str "Downloaded \"" large-test-image "\"") log))))
