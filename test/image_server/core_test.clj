@@ -21,7 +21,7 @@
 (deftest tests
   (testing "Random Pictures"
     (let [random-pics (map #(.getName %) (file-seq-string "resources/random/"))]
-      (is (= 48 (count random-pics)))
+      (is (= random-picture-amount (count random-pics)))
       (is (every? #(s/ends-with? % ".jpg") random-pics))
       (is (= (apply hash-set (map #(str random-picture-dir %) random-pics))
              (apply hash-set (repeatedly 2000 get-random-pic)))))))
@@ -82,7 +82,7 @@
     (let [{:keys [status body]} (localhost)]
       (is (= status 404))
       (is (= body "Page not found")))
-    (is (are-random-pics-random? 50))
+    (is (are-random-pics-random? 30))
     (let [{:keys [status body]} (localhost "get/invalidbase64")]
       (is (= status 400))
       (is (= body "Invalid base64")))

@@ -70,7 +70,7 @@
   (timbre/merge-config!
     {:appenders {:spit (appenders/spit-appender {:fname log-file})}})
   (check-imagemagick)
-  (make-parents (clojure.java.io/file (str cache-directory "foo"))))
+  (make-parents (clojure.java.io/file (str cache-directory "a"))))
 
 (defn -main [& args]
   (prepare-before-server-start)
