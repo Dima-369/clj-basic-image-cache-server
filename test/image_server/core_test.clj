@@ -68,6 +68,6 @@
     (let [url (format-localhost (str "get/" (base64/encode test-image)))]
       (test-image-download-url #(= test-image %))
       (Thread/sleep 1000)
-      (test-image-download-url #(= url %))) ; 2. call is from this server
+      (test-image-download-url #(= url %))) ; 2. call returns the cached image
     (httpkitserver))
   (is (not-empty (slurp log-file))))
