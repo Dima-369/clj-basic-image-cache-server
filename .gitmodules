@@ -1,3 +1,3 @@
 [submodule "checkouts/http-kit"]
 	path = checkouts/http-kit
-	url = git@github.com:Gira-X/http-kit.git
+	url = https://github.com/Gira-X/http-kit.git
