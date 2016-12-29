@@ -1,5 +1,3 @@
 language: clojure
 script:
-  - lein eastwood
-  - lein kibit
-  - lein test
+  - lein do eastwood, kibit, test
