@@ -1,5 +1,7 @@
 # clj-basic-image-server
 
+[![Build Status](https://travis-ci.org/Gira-X/clj-basic-image-cache-server.svg?branch=master)](https://travis-ci.org/Gira-X/clj-basic-image-cache-server)
+
 Very simple image server which takes base64 encoded image URLs, downloads them and provides them to the clients once the download is finished.
 
 ## Usage
