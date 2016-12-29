@@ -69,6 +69,7 @@
 (defn prepare-before-server-start []
   (timbre/merge-config!
     {:appenders {:spit (appenders/spit-appender {:fname log-file})}})
+  (check-imagemagick)
   (make-parents (clojure.java.io/file (str cache-directory "foo"))))
 
 (defn -main [& args]

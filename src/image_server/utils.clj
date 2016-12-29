@@ -66,3 +66,11 @@
         (do
           (error (str "Exception on \"" url "\": " e))
           (delete-cache-file name))))))
+
+(defn check-imagemagick []
+  (try
+    (sh "identify" "&&" "convert")
+    (catch Exception e
+      (do
+        (error "ImageMagick seems to be missing!")
+        (System/exit 1)))))
