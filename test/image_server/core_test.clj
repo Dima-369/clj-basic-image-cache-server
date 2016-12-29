@@ -26,7 +26,7 @@
       (is (= 48 (count random-pics)))
       (is (every? #(s/ends-with? % ".jpg") random-pics))
       (is (= (apply hash-set (map #(str random-picture-dir %) random-pics))
-             (apply hash-set (repeatedly 2000 #(get-random-pic))))))))
+             (apply hash-set (repeatedly 2000 get-random-pic)))))))
 
 (defn format-localhost [url]
   (str "http://localhost:" port "/" url))
@@ -51,9 +51,6 @@
     (is (f url))))
 
 (deftest server
-  (if true
-    (println "hey")
-    nil)
   (swallow-exceptions (delete-file log-file))
   (swallow-exceptions (delete-file (str cache-directory test-image-sha)))
   (let [httpkitserver (-main)]

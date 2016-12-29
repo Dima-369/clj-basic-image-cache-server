@@ -1,3 +1,2 @@
 language: clojure
-script:
-  - lein do kibit, eastwood, test
+script: lein do kibit src/ test/, eastwood, test
