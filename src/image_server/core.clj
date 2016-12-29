@@ -62,8 +62,8 @@
         (send-error "Invalid base64" channel)))))
 
 (defroutes all-routes
-  (GET "/get/random" [] get-random)
   (GET ["/get/:url", :url base64-regex] [] get-image-url)
+  (GET "/random" [] get-random)
   (not-found "Page not found"))
 
 (defn prepare-before-server-start []

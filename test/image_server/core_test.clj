@@ -12,6 +12,7 @@
 (def test-image "http://designed-x.com/img/github.png")
 ; https://upload.wikimedia.org/wikipedia/commons/e/e3/Large_and_small_magellanic_cloud_from_new_zealand.jpg
 (def large-test-image "http://designed-x.com/large.jpg")
+;(def large-test-image "http://designed-x.com/img/github.png")
 
 (defn file-seq-string
   "Returns only files in the passed directory"
@@ -42,7 +43,7 @@
 (defn are-random-pics-random? [n]
   (not= n (count
             (apply hash-set
-                   (repeatedly n #(get-in (localhost "get/random")
+                   (repeatedly n #(get-in (localhost "random")
                                           [:headers :content-length]))))))
 
 (defn get-content-length
@@ -71,7 +72,7 @@
     (is (= status 200))
     (is (= url image))))
 
-(defn only-in-log? [s log]
+(defn only-download-in-log? [s log]
   (= 1 (count (re-seq (re-pattern (str "Downloaded \"" s "\"")) log))))
 
 (deftest server
@@ -95,11 +96,11 @@
     (is (> (get-content-length test-image #(= test-image %) {:delay 0})
            (get-content-length test-image is-local-url? {:delay 1000})))
     ; testing multiple concurrent calls
-    (doseq [f (doall (repeatedly 10 #(future (is-redirect? large-test-image))))]
+    (doseq [f (doall (repeatedly 15 #(future (is-redirect? large-test-image))))]
       @f)
     ; wait until all server threads are finished, the above future calls are
     ; usually faster
     (Thread/sleep 1000)
     (httpkitserver))
   (let [log (slurp log-file)]
-    (is (every? #(only-in-log? % log) [test-image large-test-image]))))
+    (is (only-download-in-log? large-test-image log))))
