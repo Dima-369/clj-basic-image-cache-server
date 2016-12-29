@@ -35,6 +35,7 @@
                   :body s}))
 
 (defn send-redirect [url channel]
+  (info (str "Redirecting to \"" url "\""))
   (send! channel {:status 307
                   :headers {"location" url
                             "connection" "close"}}))
