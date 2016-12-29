@@ -9,14 +9,12 @@
             [image-server.utils :refer :all]
             [image-server.randomimages :refer :all]))
 
-(def test-image "http://designed-x.com/img/me.png")
-(def test-image-sha (sha-256 test-image))
-
-(defmacro swallow-exceptions [& body]
-  `(try ~@body (catch Exception e#)))
+(def test-image "http://designed-x.com/img/github.png")
+; https://upload.wikimedia.org/wikipedia/commons/e/e3/Large_and_small_magellanic_cloud_from_new_zealand.jpg
+(def large-test-image "http://designed-x.com/large.jpg")
 
 (defn file-seq-string
-  "Takes a string instead of clojure.java.io/file and returns only files"
+  "Returns only files in the passed directory"
   [dir]
   (filter #(.isFile %) (file-seq (clojure.java.io/file dir))))
 
@@ -35,24 +33,48 @@
   ([] (localhost ""))
   ([url] @(http/get (format-localhost url))))
 
+(defmacro swallow-exceptions [& body]
+  `(try ~@body (catch Exception e#)))
+
+(defn delete-files [files]
+  (doseq [f files] (swallow-exceptions (delete-file f))))
+
 (defn are-random-pics-random? [n]
   (not= n (count
             (apply hash-set
                    (repeatedly n #(get-in (localhost "get/random")
                                           [:headers :content-length]))))))
 
-(defn test-image-download-url [f]
-  (let [{:keys [status] :as resp
+(defn get-content-length
+  "A function which validates the f should be passed for f and m
+  should contain {:delay 100} or any other value.
+
+  The content-length of the response is returned"
+  [imageUrl f m]
+  (when-let [delay (:delay m)]
+    (Thread/sleep delay))
+  (let [{:keys [status]
          {:keys [content-length]} :headers
          {:keys [url]} :opts}
-        (localhost (str "get/" (base64/encode test-image)))]
+        (localhost (str "get/" (base64/encode imageUrl)))]
     (is (= status 200))
-    (is (> (Integer. content-length) 1000))
-    (is (f url))))
+    (is (f url))
+    (Integer. content-length)))
+
+(defn is-local-url? [url]
+  (= (format-localhost (str "get/" (base64/encode test-image))) url))
+
+(defn is-redirect? [image]
+  (let [{:keys [status]
+         {:keys [url]} :opts}
+        (localhost (str "get/" (base64/encode image)))]
+    (is (= status 200))
+    (is (= url image))))
 
 (deftest server
-  (swallow-exceptions (delete-file log-file))
-  (swallow-exceptions (delete-file (str cache-directory test-image-sha)))
+  (delete-files [log-file
+                 (str cache-directory (sha-256 test-image))
+                 (str cache-directory (sha-256 large-test-image))])
   (let [httpkitserver (-main)]
     (let [{:keys [status body]} (localhost)]
       (is (= status 404))
@@ -65,9 +87,15 @@
           (localhost (str "get/" (base64/encode "www.notvalid")))]
       (is (= status 400))
       (is (= body "Decoded URL is not valid")))
-    (let [url (format-localhost (str "get/" (base64/encode test-image)))]
-      (test-image-download-url #(= test-image %))
-      (Thread/sleep 1000)
-      (test-image-download-url #(= url %))) ; 2. call returns the cached image
+    ; second call returns the cached image which should be smaller than the
+    ; original image
+    (is (> (get-content-length test-image #(= test-image %) {:delay 0})
+           (get-content-length test-image is-local-url? {:delay 1000})))
+    ; testing multiple concurrent calls
+    (doseq [f (doall (repeatedly 10 #(future (is-redirect? large-test-image))))]
+      @f)
+    ; wait until all server threads are finished, the above future calls are
+    ; usually faster
+    (Thread/sleep 1000)
     (httpkitserver))
   (is (not-empty (slurp log-file))))
