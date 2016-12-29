@@ -16,4 +16,4 @@
   :main ^:skip-aot image-server.core
   :profiles {:uberjar {:aot :all}
              :dev {:plugins [[jonase/eastwood "0.2.3"]
-                             [lein-kibit "0.1.3]]}})
+                             [lein-kibit "0.1.3"]]}})
