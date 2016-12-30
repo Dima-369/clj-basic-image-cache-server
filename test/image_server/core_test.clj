@@ -80,11 +80,11 @@
 
 ; the sleeps are inserted for the filesystem to catch up
 (defn single-concurrent-test []
-  (Thread/sleep 50)
+  (Thread/sleep 100)
   (delete-files [(str cache-directory (sha-256 large-test-image))])
   (doseq [f (doall (repeatedly 3 #(future (is-redirect? large-test-image))))]
     @f)
-  (Thread/sleep 50))
+  (Thread/sleep 100))
 
 ; See issue #2
 (defn test-concurrent-race-condition
@@ -95,7 +95,7 @@
 
 (deftest server
   (delete-files [log-file])
-  (let [httpkitserver (-main)]
+  (let [httpkitserver (-main "-debug")]
     (let [{:keys [status body]} (localhost)]
       (is (= status 404))
       (is (= body "Page not found")))
@@ -118,6 +118,6 @@
     (Thread/sleep 1000)
     (httpkitserver))
   (let [log (slurp log-file)]
-    ; TODO: Check if any exceptions are logged
+    ; TODO: Check if any exceptions are logged?
     (is (= race-condition-test-amount
            (count-downloads-in-log large-test-image log)))))

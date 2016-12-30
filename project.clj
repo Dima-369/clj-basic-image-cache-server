@@ -18,5 +18,6 @@
   :profiles {:uberjar {:aot [image-server.core
                              image-server.utils
                              image-server.randomimages]}
+             ; used in Travis CI
              :dev {:plugins [[jonase/eastwood "0.2.3"]
                              [lein-kibit "0.1.3"]]}})

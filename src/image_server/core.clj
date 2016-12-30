@@ -9,8 +9,8 @@
             [org.httpkit.server :refer [run-server send! with-channel]]
             [ring.middleware.defaults :refer [api-defaults
                                               wrap-defaults]]
-            [taoensso.timbre :as timbre :refer [error info]]
-            [taoensso.timbre.appenders.core :as appenders])
+            [taoensso.timbre :refer [error info merge-config!
+                                     spit-appender]])
   (:import (org.apache.commons.validator UrlValidator))
   (:gen-class))
 
@@ -64,13 +64,19 @@
   (GET "/random" [] get-random)
   (not-found "Page not found"))
 
-(defn prepare-before-server-start []
-  (timbre/merge-config!
-    {:appenders {:spit (appenders/spit-appender {:fname log-file})}})
+; if :println is used the default println appender is overwritten
+; we only overwrite it in release mode because tests are nicer if the log is
+; also visible in the console
+(defn get-appender-name [debug?]
+  (if debug? :spit :println))
+
+(defn prepare-before-server-start [debug?]
+  (merge-config! {:appenders {(get-appender-name debug?)
+                              (spit-appender {:fname log-file})}})
   (check-imagemagick)
   (make-parents (clojure.java.io/file (str cache-directory "a"))))
 
 (defn -main [& args]
-  (prepare-before-server-start)
+  (prepare-before-server-start (not= -1 (.indexOf args "-debug")))
   (info (str "Starting server on port " port))
   (run-server (wrap-defaults all-routes api-defaults) {:port port}))
