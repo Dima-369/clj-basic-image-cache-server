@@ -20,8 +20,7 @@
 (defn send-jpg-file [file channel]
   (info (str "Serving \"" file "\""))
   (send! channel {:status 200
-                  :headers {"content-type" "image/jpeg"
-                            "connection" "close"}
+                  :headers {"content-type" "image/jpeg"}
                   :body (input-stream file)}))
 
 (defn send-jpg-cache-file [file channel]

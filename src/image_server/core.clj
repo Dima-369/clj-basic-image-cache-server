@@ -30,15 +30,13 @@
 (defn send-error [s channel]
   (error s)
   (send! channel {:status 400
-                  :headers {"content-type" "text/plain"
-                            "connection" "close"}
+                  :headers {"content-type" "text/plain"}
                   :body s}))
 
 (defn send-redirect [url channel]
   (info (str "Redirecting to \"" url "\""))
   (send! channel {:status 307
-                  :headers {"location" url
-                            "connection" "close"}}))
+                  :headers {"location" url}}))
 
 (defn process-image-url [url channel]
   (let [new-filename (sha-256 url)]
