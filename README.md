@@ -32,7 +32,7 @@ It overwrites the image files in the `resources/random/` directory.
 
 Run it like this from `lein repl`:
 
-```
+```clojure
 (use 'scraper.scrape-unsplash)
 (scrape-unsplash {:amount 25 :resolution 800})
 ```
