@@ -78,12 +78,13 @@
 
 (def race-condition-test-amount 8)
 
+; the sleeps are inserted for the filesystem to catch up
 (defn single-concurrent-test []
+  (Thread/sleep 50)
   (delete-files [(str cache-directory (sha-256 large-test-image))])
-  (doseq [f (doall (repeatedly 2 #(future (is-redirect? large-test-image))))]
+  (doseq [f (doall (repeatedly 3 #(future (is-redirect? large-test-image))))]
     @f)
-  ; required for the filesystem to catch up
-  (Thread/sleep 100))
+  (Thread/sleep 50))
 
 ; See issue #2
 (defn test-concurrent-race-condition
