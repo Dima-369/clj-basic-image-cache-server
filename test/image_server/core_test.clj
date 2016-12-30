@@ -73,8 +73,8 @@
     (is (= status 200))
     (is (= url image))))
 
-(defn count-downloads-in-log [s log]
-  (count (re-seq (re-pattern (str "Downloaded \"" s "\"")) log)))
+(defn count-in-log [s log]
+  (count (re-seq (re-pattern s) log)))
 
 (def race-condition-test-amount 8)
 
@@ -118,6 +118,6 @@
     (Thread/sleep 1000)
     (httpkitserver))
   (let [log (slurp log-file)]
-    ; TODO: Check if any exceptions are logged?
     (is (= race-condition-test-amount
-           (count-downloads-in-log large-test-image log)))))
+           (count-in-log (str "Downloaded \"" large-test-image "\"") log)))
+    (is (= 0 (count-in-log "Exception: " log)))))
