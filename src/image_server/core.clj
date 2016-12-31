@@ -76,7 +76,12 @@
   (check-imagemagick)
   (make-parents (clojure.java.io/file (str cache-directory "a"))))
 
+(defn debug-from-args? [args]
+  (if (nil? args)
+    false
+    (not= -1 (.indexOf args "-debug"))))
+
 (defn -main [& args]
-  (prepare-before-server-start (not= -1 (.indexOf args "-debug")))
+  (prepare-before-server-start (debug-from-args? args))
   (info (str "Starting server on port " port))
   (run-server (wrap-defaults all-routes api-defaults) {:port port}))
