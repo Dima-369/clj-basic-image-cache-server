@@ -11,6 +11,8 @@
 (def test-image "http://designed-x.com/img/github.png")
 ; https://upload.wikimedia.org/wikipedia/commons/e/e3/Large_and_small_magellanic_cloud_from_new_zealand.jpg
 (def large-test-image "http://designed-x.com/large.jpg")
+(def non-image-url
+  "https://raw.githubusercontent.com/Gira-X/VMT-Editor/master/misc/version.txt")
 
 (defn file-seq-string
   "Returns only files in the passed directory"
@@ -86,6 +88,13 @@
   []
   (doall (repeatedly race-condition-test-amount single-concurrent-test)))
 
+(defn test-non-image-url []
+    (let [{:keys [status body]}
+          (localhost (str "get/" (base64/encode non-image-url)))]
+      (is (= status 200))
+      (Thread/sleep 500) ; waiting for the server
+      (is (not (exists-cache-file? (str sha-256 non-image-url))))))
+
 (deftest server
   (delete-files [log-file])
   (let [httpkitserver (-main "-debug")]
@@ -100,6 +109,7 @@
           (localhost (str "get/" (base64/encode "www.notvalid")))]
       (is (= status 400))
       (is (= body "Decoded URL is not valid")))
+    (test-non-image-url)
     ; second call returns the cached image which should be smaller than the
     ; original image
     (delete-files [(str cache-directory (sha-256 test-image))])
