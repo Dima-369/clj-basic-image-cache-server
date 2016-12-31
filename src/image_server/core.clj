@@ -47,7 +47,7 @@
       (do
         (spit (str cache-directory new-filename) "")
         (send-redirect url channel)
-        (download-to-cache-and-process url new-filename)))))
+        (future (download-to-cache-and-process url new-filename))))))
 
 (defn get-image-url [{:keys [] :as req
                       {:keys [url]} :params}]

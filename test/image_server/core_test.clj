@@ -1,6 +1,5 @@
 (ns image-server.core-test
   (:require [base64-clj.core :as base64]
-            [clojure.java.io :refer [delete-file]]
             [clojure.string :as s]
             [clojure.test :refer [deftest is testing]]
             [digest :refer [sha-256]]
@@ -35,12 +34,6 @@
   ([] (localhost ""))
   ([url] @(http/get (format-localhost url))))
 
-(defmacro swallow-exceptions [& body]
-  `(try ~@body (catch Exception e#)))
-
-(defn delete-files [files]
-  (doseq [f files] (swallow-exceptions (delete-file f))))
-
 (defn are-random-pics-random? [n]
   (not= n (count
             (apply hash-set
@@ -66,25 +59,25 @@
 (defn is-local-url? [url]
   (= (format-localhost (str "get/" (base64/encode test-image))) url))
 
-(defn is-redirect? [image]
-  (let [{:keys [status]
-         {:keys [url]} :opts}
-        (localhost (str "get/" (base64/encode image)))]
-    (is (= status 200))
-    (is (= url image))))
+(defn got-redirected? [image]
+  (let [{:keys [status]}
+        @(http/get (format-localhost (str "get/" (base64/encode image)))
+                   {:follow-redirects false})]
+    (is (= status 307))))
 
 (defn count-in-log [s log]
   (count (re-seq (re-pattern s) log)))
 
-(def race-condition-test-amount 8)
+(def race-condition-test-amount 5)
 
-; the sleeps are inserted for the filesystem to catch up
 (defn single-concurrent-test []
-  (Thread/sleep 100)
   (delete-files [(str cache-directory (sha-256 large-test-image))])
-  (doseq [f (doall (repeatedly 3 #(future (is-redirect? large-test-image))))]
+  (reset! downloads '())
+  (Thread/sleep 200) ; catching up with the filesystem
+  (doseq [f (doall
+              (repeatedly 15 #(future (got-redirected? large-test-image))))]
     @f)
-  (Thread/sleep 100))
+  (Thread/sleep 4000)) ; need to wait until the server has downloaded the image
 
 ; See issue #2
 (defn test-concurrent-race-condition
@@ -113,11 +106,8 @@
     (is (> (get-content-length test-image #(= test-image %) {:delay 0})
            (get-content-length test-image is-local-url? {:delay 1000})))
     (test-concurrent-race-condition)
-    ; wait until all server threads are finished, the future calls from
-    ; test-concurrent-race-condition are usually faster
-    (Thread/sleep 1000)
     (httpkitserver))
   (let [log (slurp log-file)]
     (is (= race-condition-test-amount
            (count-in-log (str "Downloaded \"" large-test-image "\"") log)))
-    (is (= 0 (count-in-log "Exception: " log)))))
+    (is (zero? (count-in-log "Exception: " log)))))
