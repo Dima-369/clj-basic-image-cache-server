@@ -23,6 +23,7 @@ Otherwise just ignore it if the header does not bother you.
 ## Notes
 
 * Image transparency is lost, and replaced with a black color, because of the conversion to JPG
+* Timbre is configured to write to a log file only, so don't be suprised when you see no application output in the console
 
 ## Unsplash.it scraper
 
