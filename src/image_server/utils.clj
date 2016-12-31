@@ -55,8 +55,10 @@
 
 (defn can-download-file-safely? [url]
   (try
-    (swap! downloads (fn [old] (conj old url))) true
-    (catch Exception e false)))
+    (swap! downloads #(conj % url)) true
+    (catch Exception e (do (info (str "Prevented duplicated download on \""
+                                      url "\""))
+                           false))))
 
 (defn delete-cache-file [name]
   (delete-files [(str cache-directory name)]))
