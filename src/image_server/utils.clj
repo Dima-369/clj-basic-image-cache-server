@@ -8,6 +8,12 @@
 
 (def cache-directory "resources/cache/")
 
+(defmacro swallow-exceptions [& body]
+  `(try ~@body (catch Exception e#)))
+
+(defn delete-files [files]
+  (doseq [f files] (swallow-exceptions (delete-file f))))
+
 (defn non-empty-cache-file? [name]
   (pos? (.length (file (str cache-directory name)))))
 
@@ -36,13 +42,24 @@
     (sh "convert" "-quality" "80" "-resize" "800x800>"
         name (str "jpg:" name))))
 
-(defn download-cache-file-to-raw [url name]
-  (with-open [in (input-stream url)
-              out (output-stream (str cache-directory name))]
-    (copy in out)))
+(def downloads (atom '() :validator #(= (count %) (count (distinct %)))))
+
+(defn download-cache-file [url name]
+  (info (str "Downloading from \"" url "\""))
+  (let [start (System/nanoTime)]
+    (with-open [in (input-stream url)
+                out (output-stream (str cache-directory name))]
+      (copy in out))
+    (info (str "Downloaded \"" url "\" in " (nanoTime-diff start) "ms")))
+  (swap! downloads (fn [old] (doall (remove #(= % url) old)))))
+
+(defn can-download-file-safely? [url]
+  (try
+    (swap! downloads (fn [old] (conj old url))) true
+    (catch Exception e false)))
 
 (defn delete-cache-file [name]
-  (delete-file (str cache-directory name)))
+  (delete-files [(str cache-directory name)]))
 
 (defn process-downloaded-image [name]
   (if (is-cache-image-file? name)
@@ -54,17 +71,9 @@
       (error (str "Not an image file: \"" name "\"")))))
 
 (defn download-to-cache-and-process [url name]
-  (info (str "Downloading from \"" url "\""))
-  (let [start (System/nanoTime)]
-    (try
-      (do
-        (download-cache-file-to-raw url name)
-        (info (str "Downloaded \"" url "\" in " (nanoTime-diff start) "ms"))
-        (process-downloaded-image name))
-      (catch Exception e
-        (do
-          (error (str "Exception on \"" url "\": " e))
-          (delete-cache-file name))))))
+  (when (can-download-file-safely? url)
+    (download-cache-file url name)
+    (process-downloaded-image name)))
 
 (defn check-imagemagick []
   (try
