@@ -8,13 +8,21 @@
             [image-server.utils :refer :all]
             [org.httpkit.client :as http]))
 
+;; 241.4KB image from
+;; https://upload.wikimedia.org/wikipedia/commons/9/9b/Carl_Friedrich_Gauss.jpg
 (def test-image
-  "https://en.wikipedia.org/static/images/project-logos/enwiki.png")
-(def large-test-image
-  (str "https://upload.wikimedia.org/wikipedia/commons/e/e3/"
-       "Large_and_small_magellanic_cloud_from_new_zealand.jpg"))
+  "http://dbutemann.com/clj-basic-image-cache-server/Carl_Friedrich_Gauss.jpg")
 (def non-image-url
   "https://raw.githubusercontent.com/Gira-X/VMT-Editor/master/misc/version.txt")
+
+; This image should take a while to download because the tests verify if it was
+; only downloaded once
+; If it is downloaded too fast, 200 is returned but the tests check for 307
+;; 10.07MB image from
+;; https://upload.wikimedia.org/wikipedia/commons/0/05/01E_May_15_2013_1750Z.jpg
+(def large-test-image
+  "http://dbutemann.com/clj-basic-image-cache-server/01E_May_15_2013_1750Z.jpg")
+
 
 (defn file-seq-string
   "Returns only files in the passed directory"
