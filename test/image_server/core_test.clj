@@ -8,9 +8,11 @@
             [image-server.utils :refer :all]
             [org.httpkit.client :as http]))
 
-(def test-image "http://designed-x.com/img/github.png")
-; https://upload.wikimedia.org/wikipedia/commons/e/e3/Large_and_small_magellanic_cloud_from_new_zealand.jpg
-(def large-test-image "http://designed-x.com/large.jpg")
+(def test-image
+  "https://en.wikipedia.org/static/images/project-logos/enwiki.png")
+(def large-test-image
+  (str "https://upload.wikimedia.org/wikipedia/commons/e/e3/"
+       "Large_and_small_magellanic_cloud_from_new_zealand.jpg"))
 (def non-image-url
   "https://raw.githubusercontent.com/Gira-X/VMT-Editor/master/misc/version.txt")
 
